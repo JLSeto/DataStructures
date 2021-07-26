@@ -1,34 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var DoublyLinkedList_1 = require("../../src/linkedlist/DoublyLinkedList");
-function assertEquals(result, expected) {
-    if (typeof result == typeof expected) {
-        if (result != expected) {
-            throw new Error("Expected Value: " + expected + ", Received: " + result);
-        }
-        else {
-            console.log("TEST PASSED: " + result);
-        }
-    }
-    else {
-        throw new Error("Expected Type: " + typeof expected + ", Received: " + typeof result);
-    }
-}
+var commonHelpers_1 = require("../commonHelpers");
 var LinkedListTest = /** @class */ (function () {
     function LinkedListTest() {
     }
     LinkedListTest.prototype.testToString = function () {
         var strs = new DoublyLinkedList_1.DoublyLinkedList();
-        assertEquals(strs.toString(), "[  ]");
+        commonHelpers_1.assertEquals(strs.toString(), "[  ]");
         strs.addLast("a");
-        assertEquals(strs.toString(), "[ a ]");
+        commonHelpers_1.assertEquals(strs.toString(), "[ a ]");
         strs.addLast("b");
-        assertEquals(strs.toString(), "[ a, b ]");
+        commonHelpers_1.assertEquals(strs.toString(), "[ a, b ]");
         strs.addLast("c");
         strs.addLast("d");
         strs.addLast("e");
         strs.addLast("f");
-        assertEquals(strs.toString(), "[ a, b, c, d, e, f ]");
+        commonHelpers_1.assertEquals(strs.toString(), "[ a, b, c, d, e, f ]");
     };
     return LinkedListTest;
 }());
