@@ -1,4 +1,6 @@
 import { DoublyLinkedList } from '../linkedlist/DoublyLinkedList';
+import { assertEquals }     from "../../tests/commonHelpers"
+import { assert } from 'console';
 
 class Key<K>
 {
@@ -21,6 +23,7 @@ class Key<K>
         return hash;
     }
 }
+
 class Entry<K, V>
 {
     hash: number;
@@ -52,46 +55,44 @@ class Entry<K, V>
     }
 }
 
-class HashTableSeparateChaining<K, V> implements Iterable<any>
+export class HashTableSeparateChaining<K, V> 
 {
     private static readonly DEFAULT_CAPACITY    : number = 3;
     private static readonly DEFAULT_LOAD_FACTOR : number = 0.75;
 
-    private maxLoadFactor   : number;
+    private maxLoadFactor   : number = 0;
     private capacity        : number = 0;
     private threshold       : number = 0;
     private size            : number = 0;
-    private table: DoublyLinkedList<Entry<K, V>>[] = [];
+    private table: DoublyLinkedList<Entry<K, V>>[] = new Array<DoublyLinkedList<Entry<K, V>>>();
 
-    constructor(capacity : number, maxLoadFactor : number)
+    constructor(capacity : number | null, maxLoadFactor : number | null)
     {
         if(capacity == null && maxLoadFactor == null)
         {
-            this.capacity = HashTableSeparateChaining.DEFAULT_CAPACITY;
-            this.maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
+            capacity = HashTableSeparateChaining.DEFAULT_CAPACITY;
+            maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
         }
         else if(capacity != null && maxLoadFactor == null)
         {
-            this.capacity = this.capacity;
-            this.maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
+            capacity = this.capacity;
+            maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
         }
-        else
+
+        if(capacity != null && capacity < 0)
         {
-            if(capacity != null && capacity < 0)
-            {
-                throw new Error("Illegal Capacity");
-            }
-
-            if(maxLoadFactor == null || maxLoadFactor <= 0 || !isFinite(maxLoadFactor))
-            {
-                throw new Error("Illegal maxLoadFactor");
-            }
-
-            this.maxLoadFactor = maxLoadFactor;
-            this.capacity = Math.max(capacity, HashTableSeparateChaining.DEFAULT_CAPACITY);
-            this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
-            this.table = new Array<DoublyLinkedList<Entry<K, V>>>(this.capacity);
+            throw new Error("Illegal Capacity");
         }
+
+        if(maxLoadFactor == null || maxLoadFactor <= 0 || !isFinite(maxLoadFactor))
+        {
+            throw new Error("Illegal maxLoadFactor");
+        }
+
+        this.maxLoadFactor = maxLoadFactor;
+        this.capacity = Math.max(capacity!, HashTableSeparateChaining.DEFAULT_CAPACITY);
+        this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
+        this.table = new Array<DoublyLinkedList<Entry<K, V>>>(this.capacity).fill(null!);
     }
 
     // Returns the number of elements currently inside the hash-table
@@ -115,8 +116,8 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
 
     public clear() : void
     {
-        let e = new DoublyLinkedList<Entry<K, V>>();
-        this.table.fill(e);
+        //let e = new DoublyLinkedList<Entry<K, V>>();
+        this.table.fill(null!);
         this.size = 0;
     }
 
@@ -125,7 +126,7 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
     {
         let keyS: Key<K> = new Key(key);
         let bucketIndex = this.normalizeIndex(keyS.hashCode());
-        return this.bucketSeekEntry(bucketIndex, key) != null;
+        return (this.bucketSeekEntry(bucketIndex, key) != null);
     }
 
     public insert(key : K, value : V) : V | null
@@ -153,14 +154,15 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
 
         if(existentEntry == null)
         {
-            bucket.addLast(entry);
+
+            this.table[bucketIndex].addLast(entry);
 
             if(++this.size > this.threshold)
             {
                 this.resizeTable();
             }
 
-            return null;
+            return null; //Use null to indicate no previous entry
         }
         else
         {
@@ -168,7 +170,6 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
             existentEntry.value = entry.value;
             return oldVal;
         }
-
     }
 
     //get a key's value from the map and return the value
@@ -192,13 +193,12 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
             return null;
         }
 
-        let bucket : DoublyLinkedList<Entry<K, V>> = this.table[bucketIndex];
-
+        let bucket = this.table[bucketIndex];
         if(bucket == null)
         {
             return null;
         }
-
+        
         for(let entry of bucket)
         {
             if(entry?.key.key == key)
@@ -217,6 +217,7 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
         {
             return null;
         }
+
         let bucketIndex = this.normalizeIndex((new Key(key)).hashCode());
         return this.bucketRemoveEntry(bucketIndex, key);
     }
@@ -224,6 +225,7 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
     private bucketRemoveEntry(bucketIndex : number, key : K) : V | null
     {
         let entry = this.bucketSeekEntry(bucketIndex, key);
+
         if(entry != null)
         {
             let links = this.table[bucketIndex];
@@ -241,5 +243,29 @@ class HashTableSeparateChaining<K, V> implements Iterable<any>
     {
         this.capacity *= 2;
         this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
+        let newTable: DoublyLinkedList<Entry<K, V>>[] = new Array<DoublyLinkedList<Entry<K, V>>>(this.capacity);
+
+        for(let i = 0; i < this.table.length; i++)
+        {
+            if(this.table[i] != null)
+            {
+                for(let entry of this.table[i])
+                {
+                    let bucketIndex = this.normalizeIndex(entry!.hash);
+                    let bucket = newTable[bucketIndex];
+
+                    if(bucket == null)
+                    {
+                        newTable[bucketIndex] = bucket = new DoublyLinkedList();
+                        bucket.addLast(entry!);
+                    }
+
+                    this.table[i].clear();
+                    this.table[i] = null!;
+                }
+            }
+        }
+
+        this.table = newTable;
     }
 }

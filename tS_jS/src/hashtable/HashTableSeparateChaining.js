@@ -11,6 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HashTableSeparateChaining = void 0;
 var DoublyLinkedList_1 = require("../linkedlist/DoublyLinkedList");
 var Key = /** @class */ (function () {
     function Key(key) {
@@ -48,30 +49,29 @@ var Entry = /** @class */ (function () {
 }());
 var HashTableSeparateChaining = /** @class */ (function () {
     function HashTableSeparateChaining(capacity, maxLoadFactor) {
+        this.maxLoadFactor = 0;
         this.capacity = 0;
         this.threshold = 0;
         this.size = 0;
-        this.table = [];
+        this.table = new Array();
         if (capacity == null && maxLoadFactor == null) {
-            this.capacity = HashTableSeparateChaining.DEFAULT_CAPACITY;
-            this.maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
+            capacity = HashTableSeparateChaining.DEFAULT_CAPACITY;
+            maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
         }
         else if (capacity != null && maxLoadFactor == null) {
-            this.capacity = this.capacity;
-            this.maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
+            capacity = this.capacity;
+            maxLoadFactor = HashTableSeparateChaining.DEFAULT_LOAD_FACTOR;
         }
-        else {
-            if (capacity != null && capacity < 0) {
-                throw new Error("Illegal Capacity");
-            }
-            if (maxLoadFactor == null || maxLoadFactor <= 0 || !isFinite(maxLoadFactor)) {
-                throw new Error("Illegal maxLoadFactor");
-            }
-            this.maxLoadFactor = maxLoadFactor;
-            this.capacity = Math.max(capacity, HashTableSeparateChaining.DEFAULT_CAPACITY);
-            this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
-            this.table = new Array(this.capacity);
+        if (capacity != null && capacity < 0) {
+            throw new Error("Illegal Capacity");
         }
+        if (maxLoadFactor == null || maxLoadFactor <= 0 || !isFinite(maxLoadFactor)) {
+            throw new Error("Illegal maxLoadFactor");
+        }
+        this.maxLoadFactor = maxLoadFactor;
+        this.capacity = Math.max(capacity, HashTableSeparateChaining.DEFAULT_CAPACITY);
+        this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
+        this.table = new Array(this.capacity).fill(null);
     }
     // Returns the number of elements currently inside the hash-table
     HashTableSeparateChaining.prototype.sizeOf = function () {
@@ -87,15 +87,15 @@ var HashTableSeparateChaining = /** @class */ (function () {
         return (keyHash & 0x7FFFFFFF) % this.capacity;
     };
     HashTableSeparateChaining.prototype.clear = function () {
-        var e = new DoublyLinkedList_1.DoublyLinkedList();
-        this.table.fill(e);
+        //let e = new DoublyLinkedList<Entry<K, V>>();
+        this.table.fill(null);
         this.size = 0;
     };
     // Returns true or false depending on wether a key is in the hash table
     HashTableSeparateChaining.prototype.hasKey = function (key) {
         var keyS = new Key(key);
         var bucketIndex = this.normalizeIndex(keyS.hashCode());
-        return this.bucketSeekEntry(bucketIndex, key) != null;
+        return (this.bucketSeekEntry(bucketIndex, key) != null);
     };
     HashTableSeparateChaining.prototype.insert = function (key, value) {
         if (key == null) {
@@ -112,11 +112,11 @@ var HashTableSeparateChaining = /** @class */ (function () {
         }
         var existentEntry = this.bucketSeekEntry(bucketIndex, entry.key.key);
         if (existentEntry == null) {
-            bucket.addLast(entry);
+            this.table[bucketIndex].addLast(entry);
             if (++this.size > this.threshold) {
                 this.resizeTable();
             }
-            return null;
+            return null; //Use null to indicate no previous entry
         }
         else {
             var oldVal = existentEntry.value;
@@ -180,10 +180,38 @@ var HashTableSeparateChaining = /** @class */ (function () {
         }
     };
     HashTableSeparateChaining.prototype.resizeTable = function () {
+        var e_2, _a;
         this.capacity *= 2;
         this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
+        var newTable = new Array(this.capacity);
+        for (var i = 0; i < this.table.length; i++) {
+            if (this.table[i] != null) {
+                try {
+                    for (var _b = (e_2 = void 0, __values(this.table[i])), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var entry = _c.value;
+                        var bucketIndex = this.normalizeIndex(entry.hash);
+                        var bucket = newTable[bucketIndex];
+                        if (bucket == null) {
+                            newTable[bucketIndex] = bucket = new DoublyLinkedList_1.DoublyLinkedList();
+                            bucket.addLast(entry);
+                        }
+                        this.table[i].clear();
+                        this.table[i] = null;
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+            }
+        }
+        this.table = newTable;
     };
     HashTableSeparateChaining.DEFAULT_CAPACITY = 3;
     HashTableSeparateChaining.DEFAULT_LOAD_FACTOR = 0.75;
     return HashTableSeparateChaining;
 }());
+exports.HashTableSeparateChaining = HashTableSeparateChaining;

@@ -4,14 +4,15 @@ exports.assertEquals = void 0;
 function assertEquals(result, expected) {
     if (typeof result == typeof expected) {
         if (result != expected) {
-            throw new Error("Expected Value: " + expected + ", Received: " + result);
+            console.error("TEST FAILED: Expected Value: " + expected + ", Received: " + result);
         }
         else {
-            console.log("TEST PASSED: " + result);
+            console.log("TEST PASSED: Expected Value: " + expected + ", Received: " + result);
         }
     }
     else {
-        throw new Error("Expected Type: " + typeof expected + ", Received: " + typeof result);
+        var x = "TEST FAILED: Expected Type: " + (typeof expected) + ", Received: " + (typeof result);
+        console.error(x);
     }
 }
 exports.assertEquals = assertEquals;

@@ -16,17 +16,17 @@ var DoublyLinkedList = /** @class */ (function () {
     function DoublyLinkedList() {
         var _this = this;
         this.size = 0;
-        //Iterator variables
-        this.done = false;
         this.counter = 0;
         this.next = function () {
             var _a;
-            if (_this.done) {
-                return { done: _this.done, value: null };
+            var done = false;
+            if (done) {
+                return { done: done, value: null };
             }
             if (_this.iter == null) {
-                _this.done = true;
-                return { done: _this.done, value: null };
+                done = true;
+                _this.iter = _this.head;
+                return { done: done, value: null };
             }
             var value = _this.iter.data;
             _this.iter = (_a = _this.iter) === null || _a === void 0 ? void 0 : _a.next;
@@ -251,6 +251,7 @@ var DoublyLinkedList = /** @class */ (function () {
     };
     //Iterator
     DoublyLinkedList.prototype[Symbol.iterator] = function () {
+        this.iter = this.head;
         return { next: this.next };
     };
     return DoublyLinkedList;

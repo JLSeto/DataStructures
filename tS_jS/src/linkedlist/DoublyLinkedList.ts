@@ -24,9 +24,8 @@ export class DoublyLinkedList<T> implements Iterable<any>
     private tail?: Node<T> | null;
 
     //Iterator variables
-    private done    : boolean = false;
-    private iter?   : Node<T> | null;
-    private counter : number = 0;
+    public iter?   : Node<T> | null;
+    private counter: number = 0;
 
     constructor(){ }
 
@@ -339,25 +338,30 @@ export class DoublyLinkedList<T> implements Iterable<any>
     //Iterator
     public [Symbol.iterator]() 
     {
+        this.iter = this.head;
         return { next: this.next };
     }
 
     private next = () =>
     {
-        if(this.done)
+        let done = false;
+
+        if(done)
         {
-            return {done: this.done, value: null};
+            return {done: done, value: null};
         }
 
         if(this.iter == null)
         {
-            this.done = true;
-
-            return {done: this.done, value: null};
+            done = true;
+            this.iter = this.head;
+            return {done: done, value: null};
         }
 
         const value = this.iter.data;
         this.iter = this.iter?.next;
         return {done: false, value};
+
+
     }
 }
