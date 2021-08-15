@@ -14,6 +14,11 @@ var HashTableSeparateChainingTest = /** @class */ (function () {
         test.insert(2, "cat");
         commonHelpers_1.assertEquals(test.sizeOf(), 2);
         test.insert(3, "dog");
+        test.insert(4, "4");
+        test.insert(5, "5");
+        test.insert(6, "6");
+        test.insert(7, "7");
+        test.insert(8, "8");
         commonHelpers_1.assertEquals(test.sizeOf(), 3);
         commonHelpers_1.assertEquals(test.get(3), "dog");
         commonHelpers_1.assertEquals(test.get(2), "cat");

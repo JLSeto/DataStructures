@@ -15,7 +15,12 @@ class HashTableSeparateChainingTest
         test.insert(2, "cat");
         assertEquals(test.sizeOf(), 2);
         test.insert(3, "dog");
-        assertEquals(test.sizeOf(), 3);
+        test.insert(4, "4");
+        test.insert(5, "5");
+        test.insert(6, "6");
+        test.insert(7, "7");
+        test.insert(8, "8");
+        assertEquals(test.sizeOf(), 8);
         assertEquals(test.get(3), "dog");
         assertEquals(test.get(2), "cat");
         test.insert(1, "ffff");

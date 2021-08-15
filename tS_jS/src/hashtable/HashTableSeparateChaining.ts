@@ -265,7 +265,6 @@ export class HashTableSeparateChaining<K, V>
                 }
             }
         }
-
         this.table = newTable;
     }
 }
