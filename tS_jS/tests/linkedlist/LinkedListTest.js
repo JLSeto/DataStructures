@@ -21,19 +21,19 @@ var LinkedListTest = /** @class */ (function () {
         var strs = new DoublyLinkedList_1.DoublyLinkedList();
         commonHelpers_1.assertEquals(strs.toString(), "[  ]");
         strs.addLast("a");
-        // assertEquals(strs.toString(), "[ a ]");
-        // strs.addLast("b");
-        // assertEquals(strs.toString(), "[ a, b ]");
-        // strs.addLast("c");
-        // strs.addLast("d");
-        // strs.addLast("e");
-        // strs.addLast("f");
-        // assertEquals(strs.toString(), "[ a, b, c, d, e, f ]");
+        commonHelpers_1.assertEquals(strs.toString(), "[ a ]");
+        strs.addLast("b");
+        commonHelpers_1.assertEquals(strs.toString(), "[ a, b ]");
+        strs.addLast("c");
+        strs.addLast("d");
+        strs.addLast("e");
+        strs.addLast("f");
+        commonHelpers_1.assertEquals(strs.toString(), "[ a, b, c, d, e, f ]");
         if (!strs.isEmpty()) {
             try {
                 for (var strs_1 = __values(strs), strs_1_1 = strs_1.next(); !strs_1_1.done; strs_1_1 = strs_1.next()) {
                     var s = strs_1_1.value;
-                    console.log(s);
+                    commonHelpers_1.assertEquals(s, s);
                     break;
                 }
             }
@@ -48,7 +48,7 @@ var LinkedListTest = /** @class */ (function () {
                 // console.log(strs)
                 for (var strs_2 = __values(strs), strs_2_1 = strs_2.next(); !strs_2_1.done; strs_2_1 = strs_2.next()) {
                     var s = strs_2_1.value;
-                    console.log(s);
+                    commonHelpers_1.assertEquals(s, s);
                 }
             }
             catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -61,7 +61,7 @@ var LinkedListTest = /** @class */ (function () {
             try {
                 for (var strs_3 = __values(strs), strs_3_1 = strs_3.next(); !strs_3_1.done; strs_3_1 = strs_3.next()) {
                     var s = strs_3_1.value;
-                    console.log(s);
+                    commonHelpers_1.assertEquals(s, s);
                 }
             }
             catch (e_3_1) { e_3 = { error: e_3_1 }; }
@@ -77,17 +77,3 @@ var LinkedListTest = /** @class */ (function () {
 }());
 var test = new LinkedListTest();
 test.testToString();
-// let x = new DoublyLinkedList<string>();
-// x.addFirst("A");
-// x.addFirst("B");
-// x.addFirst("C");
-// for(let entry of x)
-// {
-//     console.log(entry)
-// }
-// x.addFirst("D");
-// console.log(x.toString())
-// for(let entry of x)
-// {
-//     console.log(entry)
-// }
