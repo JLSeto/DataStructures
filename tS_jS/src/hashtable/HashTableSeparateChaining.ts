@@ -1,6 +1,4 @@
 import { DoublyLinkedList } from '../linkedlist/DoublyLinkedList';
-import { assertEquals }     from "../../tests/commonHelpers"
-import { assert } from 'console';
 
 class Key<K>
 {
