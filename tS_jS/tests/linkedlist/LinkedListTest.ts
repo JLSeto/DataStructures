@@ -3,7 +3,7 @@ import { assertEquals }     from "../commonHelpers"
 
 class LinkedListTest
 {
-    testToString() : void
+    public testToString() : void
     {
         let strs = new DoublyLinkedList();
         assertEquals(strs.toString(), "[  ]");

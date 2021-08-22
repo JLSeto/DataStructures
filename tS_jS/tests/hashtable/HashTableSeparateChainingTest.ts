@@ -1,10 +1,10 @@
-import { assert } from 'console';
 import { HashTableSeparateChaining } from '../../src/hashtable/HashTableSeparateChaining';
 import { assertEquals }     from "../commonHelpers"
+import { assert } from 'console';
 
 class HashTableSeparateChainingTest
 {
-    testGeneric() : void
+    public testGeneric() : void
     {
         let test = new HashTableSeparateChaining<number, string>(null, null);
 
