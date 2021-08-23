@@ -1,30 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var BinaryHeap_1 = require("../../src/priorityqueue/BinaryHeap");
+var PriorityQueue_1 = require("../../src/priorityqueue/PriorityQueue");
 var commonHelpers_1 = require("../commonHelpers");
-var BinaryHeapTest = /** @class */ (function () {
-    function BinaryHeapTest() {
+var PriorityQueueTest = /** @class */ (function () {
+    function PriorityQueueTest() {
     }
-    BinaryHeapTest.prototype.genericTest = function () {
-        var pq = new BinaryHeap_1.BinaryHeap();
-        for (var i = 7; i > 0; i--) {
-            pq.add(i);
-        }
-        pq.add(20);
-        pq.add(5);
-        pq.add(99);
-        pq.add(-2);
-        commonHelpers_1.assertEquals(pq.size(), 11);
-        commonHelpers_1.assertEquals(pq.poll(), -2);
+    PriorityQueueTest.prototype.genericTest = function () {
+        var pq = new PriorityQueue_1.PQueue([4, 1, 1, 1, 2, 2, 3]);
+        // for(let i = 7; i > 0; i--)
+        // {
+        //     pq.add(i)
+        // }
+        // pq.add(20);
+        // pq.add(5);
+        // pq.add(99);
+        // pq.add(-2);
+        // assertEquals(pq.size(), 11);
+        // assertEquals(pq.poll(), -2);
+        // assertEquals(pq.poll(), 1);
+        // assertEquals(pq.poll(), 2);
+        // assertEquals(pq.poll(), 5);
+        // assertEquals(pq.poll(), 7);
+        // assertEquals(pq.poll(), 3);
+        // assertEquals(pq.poll(), 6);
+        // assertEquals(pq.poll(), 4);
+        commonHelpers_1.assertEquals(pq.poll(), 1);
+        commonHelpers_1.assertEquals(pq.poll(), 1);
         commonHelpers_1.assertEquals(pq.poll(), 1);
         commonHelpers_1.assertEquals(pq.poll(), 2);
-        commonHelpers_1.assertEquals(pq.poll(), 5);
-        commonHelpers_1.assertEquals(pq.poll(), 7);
+        commonHelpers_1.assertEquals(pq.poll(), 2);
         commonHelpers_1.assertEquals(pq.poll(), 3);
-        commonHelpers_1.assertEquals(pq.poll(), 6);
         commonHelpers_1.assertEquals(pq.poll(), 4);
     };
-    return BinaryHeapTest;
+    return PriorityQueueTest;
 }());
-var bht = new BinaryHeapTest();
+var bht = new PriorityQueueTest();
 bht.genericTest();

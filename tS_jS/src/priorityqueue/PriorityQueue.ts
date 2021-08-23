@@ -1,42 +1,45 @@
 
-export class BinaryHeap<T>
+export class PQueue<T>
 {
     // # of Elements currently inside the heap
     private heapSize: number = 0;
 
     // Dynamic List to track elements inside the heap
-    private heap: T[] = null as any;
+    private heap: T[];
 
     constructor(sz?: number | T[])
     {
         let t: T[] = new Array<T>();
 
-        if(typeof sz == "number")
+        switch (typeof sz) 
         {
-            sz = sz as number;
-            sz = (!!sz) ? sz : 1;
-            this.heap = new Array<T>(sz);
-        }
-        else if(sz == undefined)
-        {
-            this.heap = new Array<T>();
-        }
-        else if(typeof sz == typeof t)
-        {
-            let elems = sz as T[];
-            this.heap = new Array<T>(sz.length);
+            case 'number':
+                sz = sz as number;
+                sz = (!!sz) ? sz : 1;
+                this.heap = new Array<T>(sz);
+            break;
 
-            //Place all element in heap
-            for(let i = 0; i < this.size(); i++)
-            {
-                this.heap.push(elems[i]);
-            }
+            case (typeof t):
+                sz = sz as T[];
+                this.heap = new Array<T>();
+    
+                //Place all element in heap
+                for(let i = 0; i < sz.length; i++)
+                {
+                    this.heap.push(sz[i]);
+                }
+    
+                // Heapify process O(n)
+                for(let i = Math.max(0, Math.floor((sz.length / 2))  - 1); i >= 0; i--)
+                {
+                    this.sink(i);
+                }
+            break;
 
-            // Heapify process O(n)
-            for(let i = Math.max(0, (this.size() / 2)  - 1); i >= 0; i--)
-            {
-                this.sink(i);
-            }
+            case 'undefined':
+            default:
+                this.heap = new Array<T>();
+            break;
         }
     }
 
@@ -58,29 +61,35 @@ export class BinaryHeap<T>
     }
 
     // Top down node sink, O(log(n))
-    private sink(k : number)
+    private sink(k : number) : void
     {
         while(true)
         {
-            let left_leaf_idx = Math.floor(2*k + 1);
-            let right_leaf_idx = Math.floor(2*k + 2);
+            let left_leaf_idx   = 2*k + 1;
+            let right_leaf_idx  = 2*k + 2;
+
             let smallest = left_leaf_idx; // assume left is smallest
 
             // Find which is smaller left or right
             // If right is smaller set smallest to be right
-            if(right_leaf_idx < this.size() && this.less(right_leaf_idx, left_leaf_idx))
+            if(right_leaf_idx < this.heap.length 
+                && this.less(right_leaf_idx, left_leaf_idx))
             {
                 smallest = right_leaf_idx;
             }
 
             // Stop if we're outside the bounds of the tree
             // or stop early if we cannot sink k anymore
-            if(left_leaf_idx >= this.size() || this.less(k, smallest))
+            if(left_leaf_idx < this.heap.length
+                && this.less(smallest, k))
+            {
+                this.swap(smallest, k); //since the leaf node is smaller than k node, swap for min heap
+                k = smallest;
+            }
+            else
             {
                 break;
             }
-
-            this.swap(smallest, k);
         }
     }
 
@@ -123,9 +132,22 @@ export class BinaryHeap<T>
     }
 
     // Removes the root of the heap, O(log(n))
-    public poll() : T
+    public poll() : T | undefined
     {
-        return (this.isEmpty()) ? null as any : this.removeAt(0);
+
+        //1. swap the root node with the last leaf
+        this.swap(0, this.heap.length - 1);
+
+        //2. remove the element
+        let removed = this.heap.pop();
+        
+        //3. sink the root node
+        this.sink(0);
+        
+        //4. return the removed element
+        return removed;
+                
+        // return (this.isEmpty()) ? null as any : this.removeAt(0);
     }
 
     // Removes a particular element in the heap, O(n)
