@@ -361,7 +361,5 @@ export class DoublyLinkedList<T> implements Iterable<any>
         const value = this.iter.data;
         this.iter = this.iter?.next;
         return {done: false, value};
-
-
     }
 }

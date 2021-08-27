@@ -1,11 +1,10 @@
 
 export class PQueue<T>
 {
-    // # of Elements currently inside the heap
-    private heapSize: number = 0;
-
     // Dynamic List to track elements inside the heap
     private heap: T[];
+
+    private map: Map<T, Array<number>> = new Map(); // value, set of indexes
 
     constructor(sz?: number | T[])
     {
@@ -27,6 +26,7 @@ export class PQueue<T>
                 for(let i = 0; i < sz.length; i++)
                 {
                     this.heap.push(sz[i]);
+                    this.mapAdd(sz[i], i);
                 }
     
                 // Heapify process O(n)
@@ -43,84 +43,26 @@ export class PQueue<T>
         }
     }
 
-    // Perform bottom up node swim O(log(n))
-    private swim(k : number) : void
+    // Returns true/false depending on if the priority queue is empty
+    public isEmpty() : boolean
     {
-        // Grab the index of the next parent node WRT to k
-        let parent: number = Math.floor((k - 1) / 2);
+        return (this.heap.length == 0);
+    }
 
-        // Keep swimming while we have not reached the
-        // root and while we're less than our parent.
-        while(k > 0 && this.less(k, parent))
+    // Clears everything inside the heap, O(n)
+    public clear() : void 
+    {
+        for(let i = 0; i < this.size(); i++)
         {
-            this.swap(parent, k);
-            k = parent;
-            // Grab the index of the next parent node WRT to k
-            parent = Math.floor((k - 1) / 2);
+            this.heap.pop(); 
         }
+        this.map.clear();
     }
 
-    // Top down node sink, O(log(n))
-    private sink(k : number) : void
+    // Return the size of the heap
+    public size() : number
     {
-        while(true)
-        {
-            let left_leaf_idx   = 2*k + 1;
-            let right_leaf_idx  = 2*k + 2;
-
-            let smallest = left_leaf_idx; // assume left is smallest
-
-            // Find which is smaller left or right
-            // If right is smaller set smallest to be right
-            if(right_leaf_idx < this.heap.length 
-                && this.less(right_leaf_idx, left_leaf_idx))
-            {
-                smallest = right_leaf_idx;
-            }
-
-            // Stop if we're outside the bounds of the tree
-            // or stop early if we cannot sink k anymore
-            if(left_leaf_idx < this.heap.length
-                && this.less(smallest, k))
-            {
-                this.swap(smallest, k); //since the leaf node is smaller than k node, swap for min heap
-                k = smallest;
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-
-    // Swap two nodes. Assumes i & j are valid, O(1)
-    private swap(i : number, j : number) : void
-    {
-        let elem_i: T = this.heap[i];
-        let elem_j: T = this.heap[j];
-
-        this.heap[i] = elem_j;
-        this.heap[j] = elem_i;
-    }
-
-    // Tests if the value of node i <= node j
-    // This method assumes i & j are valid indices, O(1)
-    private less(i : number, j : number) : boolean
-    {
-        return (this.heap[i] <= this.heap[j]) ? true : false;
-    }
-
-    // Adds an element to the priority queue, the
-    // element must not be null, O(log(n))
-    public add(elem : T) : void
-    {
-        if(elem == null)
-        {
-            throw new Error("IllegalArgument Exception");
-        }
-
-        this.heap.push(elem);
-        this.swim(this.size() - 1);
+        return this.heap.length;
     }
 
     // Returns the value of the element with the lowest
@@ -134,20 +76,118 @@ export class PQueue<T>
     // Removes the root of the heap, O(log(n))
     public poll() : T | undefined
     {
-
+        console.log(this.heap.length - 1, this.heap)
         //1. swap the root node with the last leaf
         this.swap(0, this.heap.length - 1);
 
         //2. remove the element
         let removed = this.heap.pop();
-        
+        console.log(removed)
         //3. sink the root node
         this.sink(0);
         
         //4. return the removed element
         return removed;
-                
+              
+        // Can also do the following:
         // return (this.isEmpty()) ? null as any : this.removeAt(0);
+    }
+
+    // Test if an element is in heap: O(1) by looking at the map. O(n) by looping (linear scan)
+    public contains(elem : T) : boolean
+    {
+        return (elem == null) ? false : this.map.has(elem);
+
+        // Linear scan to check containment, O(n)
+        // for(let i = 0; i < this.size(); i++)
+        // {
+        //     if(this.heap[i] == elem)
+        //     {
+        //         return true;
+        //     }
+        // }
+        // return false;
+    }
+
+    // Adds an element to the priority queue, the
+    // element must not be null, O(log(n))
+    public add(elem : T) : void
+    {
+        if(elem == null)
+        {
+            throw new Error("IllegalArgument Exception");
+        }
+        let idxLastElem = this.heap.length - 1;
+
+        this.heap.push(elem);
+        this.mapAdd(elem, idxLastElem);
+        this.swim(idxLastElem);
+    }
+
+    // Tests if the value of node i <= node j
+    // This method assumes i & j are valid indices, O(1)
+    private less(i : number, j : number) : boolean
+    {
+        return (this.heap[i] <= this.heap[j]) ? true : false;
+    }
+
+    // Perform bottom up node swim O(log(n))
+    private swim(k : number) : void
+    {
+        // Grab the index of the next parent node WRT to k
+        let parent: number = Math.floor((k - 1) / 2);
+
+        // Keep swimming while we have not reached the
+        // root and while we're less than our parent.
+        while(k > 0 && this.less(k, parent))
+        {
+            //Swap k with parent
+            this.swap(parent, k);
+            k = parent;
+            
+            // Grab the index of the next parent node WRT to k
+            parent = Math.floor((k - 1) / 2);
+        }
+    }
+
+    // Top down node sink, O(log(n))
+    private sink(k : number) : void
+    {
+        let left_leaf_idx   = 2*k + 1;
+        let right_leaf_idx  = 2*k + 2;
+        let smallest = left_leaf_idx; // assume left is smallest
+
+        //While still in bounds && we cannot sink anymore
+        while(left_leaf_idx < this.heap.length
+            && this.less(smallest, k))
+        {
+            // Check Bounds & Find which is smaller left or right
+            // If right is smaller set smallest to be right
+            if(right_leaf_idx < this.heap.length 
+                && this.less(right_leaf_idx, left_leaf_idx))
+            {
+                smallest = right_leaf_idx;
+            }
+
+            this.swap(smallest, k); //since the leaf node is smaller than k node, swap for min heap
+            
+            k = smallest;
+
+            left_leaf_idx   = 2*k + 1;
+            right_leaf_idx  = 2*k + 2;
+            smallest = left_leaf_idx; // assume left is smallest
+        }
+    }
+
+    // Swap two nodes. Assumes i & j are valid, O(1)
+    private swap(i : number, j : number) : void
+    {
+        this.mapSwap(this.heap[i], this.heap[j], i, j);
+
+        let elem_i: T = this.heap[i];
+
+        this.heap[i] = this.heap[j];
+        this.heap[j] = elem_i;
     }
 
     // Removes a particular element in the heap, O(n)
@@ -158,13 +198,22 @@ export class PQueue<T>
             return false;
         }
         
-        for(let i = 0; i < this.size(); i++)
+        //Linear Removal O(n)
+        // for(let i = 0; i < this.size(); i++)
+        // {
+        //     if(element == this.heap[i])
+        //     {
+        //         this.removeAt(i);
+        //         return true;
+        //     }
+        // }
+        // return false;
+
+        let index = this.mapGet(element);
+
+        if(index != undefined && index > -1)
         {
-            if(element == this.heap[i])
-            {
-                this.removeAt(i);
-                return true;
-            }
+            return (null != this.removeAt(index));
         }
 
         return false;
@@ -179,14 +228,19 @@ export class PQueue<T>
         }
         else
         {
-            let indexOfLastElem = this.size() - 1;
+            let indexOfLastElem = this.heap.length - 1;
             let removed_data: T = this.heap[i];
 
             //swap
             this.swap(i, indexOfLastElem);
 
             //obliterate the value
-            this.heap.pop();
+            let remove = this.heap.pop();
+            
+            if(remove != undefined)
+            {
+                this.mapRemove(remove, indexOfLastElem);
+            }
 
             //check if the last element was removed (don't need to sink or swim since last element)
             if(i == indexOfLastElem)
@@ -207,41 +261,6 @@ export class PQueue<T>
 
             return removed_data;
         }
-    }
-
-    // Test if an element is in heap, O(n)
-    public contains(elem : T)
-    {
-        for(let i = 0; i < this.size(); i++)
-        {
-            if(this.heap[i] == elem)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // Returns true/false depending on if the priority queue is empty
-    public isEmpty() : boolean
-    {
-        return (this.heap.length == 0);
-    }
-
-    // Clears everything inside the heap, O(n)
-    public clear() : void 
-    {
-        for(let i = 0; i < this.size(); i++)
-        {
-            this.heap.pop();
-        }
-    }
-
-    // Return the size of the heap
-    public size() : number
-    {
-        return this.heap.length;
     }
 
     // Recursively checks if this heap is a min heap
@@ -276,5 +295,63 @@ export class PQueue<T>
 
         // Recurse on both children to make sure they're also valid heaps
         return this.isMinHeap(left_leaf_idx) && this.isMinHeap(right_leaf_idx);
+    }
+
+    private mapAdd(val : T, index: number): void
+    {
+        let arr: Array<number> | undefined = this.map.get(val);
+
+        if(arr == null)
+        {
+            arr = new Array<number>();
+            arr.push(index);
+            this.map.set(val, arr);
+        }
+        else
+        {
+            arr.push(index);
+        }
+    }
+
+    private mapRemove(val : T, index: number): void
+    {
+        let arr: Array<number> | undefined = this.map.get(val);
+
+        arr?.splice(index, 1);
+
+        if(arr?.length == 0)
+        {
+            this.map.delete(val);
+        }
+    }
+
+    private mapGet(val : T): number | undefined
+    {
+        let arr: Array<number> | undefined = this.map.get(val);
+
+        if(arr != null)
+        {
+            return arr[arr.length - 1];
+        }
+        
+        return undefined;
+    }
+
+    private mapSwap(val1: T, val2: T, val1_idx: number, val2_idx: number)
+    {
+        let arr1 = this.map.get(val1);
+        let arr2 = this.map.get(val2);
+        
+        if(arr1 != undefined && arr2 != undefined)
+        {
+            let temp = arr1.findIndex((val) => val == val1_idx);
+            arr1.splice(temp, 1);
+
+            temp = arr2.findIndex((val) => val == val2_idx);
+            arr2.splice(temp, 1);
+        }
+
+        arr1?.push(val2_idx);
+        arr2?.push(val1_idx);
     }
 }
