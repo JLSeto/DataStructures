@@ -62,5 +62,5 @@ var grid2 = [
     ["0", "0", "0", "1", "1"]
 ];
 var test = new UnionFindTest();
-commonHelpers_1.assertEquals(test.numIslands(grid), 1);
-commonHelpers_1.assertEquals(test.numIslands(grid2), 3);
+(0, commonHelpers_1.assertEquals)(test.numIslands(grid), 1);
+(0, commonHelpers_1.assertEquals)(test.numIslands(grid2), 3);

@@ -7,13 +7,13 @@ var PriorityQueueTest = /** @class */ (function () {
     }
     PriorityQueueTest.prototype.genericTest = function () {
         var pq = new PriorityQueue_1.PQueue([4, 1, 1, 1, 2, 2, 3]);
-        commonHelpers_1.assertEquals(pq.poll(), 1);
-        commonHelpers_1.assertEquals(pq.poll(), 1);
-        commonHelpers_1.assertEquals(pq.poll(), 1);
-        commonHelpers_1.assertEquals(pq.poll(), 2);
-        commonHelpers_1.assertEquals(pq.poll(), 2);
-        commonHelpers_1.assertEquals(pq.poll(), 3);
-        commonHelpers_1.assertEquals(pq.poll(), 4);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 1);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 1);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 1);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 2);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 2);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 3);
+        (0, commonHelpers_1.assertEquals)(pq.poll(), 4);
     };
     return PriorityQueueTest;
 }());
